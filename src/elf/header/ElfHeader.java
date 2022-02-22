@@ -1,0 +1,189 @@
+package elf.header;
+
+import elf.datatype.*;
+import elf.util.Const;
+
+import java.math.BigInteger;
+import java.util.Formatter;
+
+public class ElfHeader {
+    /**
+     * Identify the file as an ELF object file, and provide information
+     * about the data representation of the object file structures.
+     */
+    public Elf64Byte[] elfIdentifier;
+    public Elf64Half objectFileType;
+    public Elf64Half machineType;
+    public Elf64Word objectFileVersion;
+
+    /**
+     * This member gives the virtual address to which the system first transfers control, thus
+     * starting the process. If the file has no associated entry point, this member holds zero.
+     */
+    public Elf64Address entryPointAddress;
+    public Elf64Offset programHeaderOffset;
+    public Elf64Offset sectionHeaderOffset;
+
+    /**
+     * This member holds processor-specific flags associated with the file. Flag names take
+     * the form EF_machine_flag. See ‘‘Machine Information’’ for flag definitions.
+     */
+    public Elf64Word processorSpecificFlag;
+    public Elf64Half elfHeaderSize;
+    public Elf64Half programHeaderEntrySize;
+    public Elf64Half numOfProgramHeaderEntries;
+    public Elf64Half sectionHeaderEntrySize;
+    public Elf64Half numOfSectionHeaderEntries;
+
+    /**
+     * This member holds the section header table index of the entry associated with the section
+     * name string table. If the file has no section name string table, this member holds
+     * the value SHN_UNDEF.
+     */
+    public Elf64Half sectionNameStringTableIndex;
+
+    public ElfHeader() {
+        // TODO: After making of most simple elf file is done, start adding methods that will
+        // TODO: allow us to customize process of making different elf file.
+        elfIdentifier = new Elf64Byte[16];
+
+        elfIdentifier[0] = new Elf64Byte((short)127);  // \x7f
+        elfIdentifier[1] = new Elf64Byte((short)'E');
+        elfIdentifier[2] = new Elf64Byte((short)'L');
+        elfIdentifier[3] = new Elf64Byte((short)'F');
+
+        elfIdentifier[4] = new Elf64Byte(FileClass.ELF_CLASS_64.value);
+        elfIdentifier[5] = new Elf64Byte(DataEncoding.ELF_DATA2LSB.value);
+        elfIdentifier[6] = new Elf64Byte(FileVersion.EV_CURRENT.value);
+        elfIdentifier[7] = new Elf64Byte(ApplicationBinaryInterface.ELF_OS_ABI_SYSV.value);
+
+        // ABI version
+        // This field is used to distinguish among incompatible versions of an ABI
+        elfIdentifier[8] = new Elf64Byte((short)0);
+
+        // Start of padding bytes
+        for(int i = 9; i < 15; i++){
+            elfIdentifier[i] = new Elf64Byte((short)0);
+        }
+        // Size of elfIdentifier
+        elfIdentifier[15] = new Elf64Byte((short)9);
+
+        objectFileType = new Elf64Half(FileType.ET_EXEC.value);
+        machineType = new Elf64Half(ProcessorArchitecture.EM_X86_64.value);
+        objectFileVersion = new Elf64Word(FileVersion.EV_CURRENT.value);
+
+        processorSpecificFlag = new Elf64Word(0);
+        elfHeaderSize = new Elf64Half((short)0x0040);
+    }
+
+    public void setMachineType(ProcessorArchitecture arc) { machineType = new Elf64Half(arc.value); }
+    public void setObjectFileType(FileType type) { objectFileType = new Elf64Half(type.value); }
+    public void setObjectFileVersion(FileVersion version) { objectFileVersion = new Elf64Word(version.value); }
+
+    public enum FileClass{
+        ELF_CLASS_NONE((short)0),
+        ELF_CLASS_32((short)1),
+        ELF_CLASS_64((short)2);
+
+        private final short value;
+        FileClass(short value) { this.value = value; }
+    }
+
+    public enum DataEncoding{
+        ELF_DATA_NONE((short)0),  /** Invalid encoding */
+        ELF_DATA2LSB((short)1),   /** Little-Endian    */
+        ELF_DATA2MSB((short)2);   /** Big-Endian       */
+
+        private final short value;
+        DataEncoding(short value) { this.value = value; }
+    }
+
+    public enum ApplicationBinaryInterface{
+        ELF_OS_ABI_SYSV((short)0),           /** System V ABI                      */
+        ELF_OS_ABI_HPUX((short)1),           /** HP-UX operating system            */
+        ELF_OS_ABI_STANDALONE((short)255);   /** Standalone (embedded) application */
+
+        private final short value;
+        ApplicationBinaryInterface(short value) { this.value = value; }
+    }
+
+    public enum FileType{
+        ET_NONE(0),        /** No file type       */
+        ET_REL(1),         /** Relocatable file   */
+        ET_EXEC(2),        /** Executable file    */
+        ET_DYN(3),         /** Shared object file */
+        ET_CORE(4),        /** Core file          */
+        ET_LOPROC(0xff00), /** Processor-specific */
+        ET_HIPROC(0xffff); /** Processor-specific */
+
+        private final int value;
+        FileType(int value) { this.value = value; }
+    }
+
+    public enum ProcessorArchitecture {
+        EM_NONE(0),           /** No Machine */
+        EM_M32(1),            /** AT&T WE 32100 */
+        EM_SPARC(2),          /** SPARC */
+        EM_386(3),            /** Intel 80386 */
+        EM_68K(4),            /** Motorola 68000 */
+        EM_88K(5),            /** Motorola 88000 */
+        EM_860(7),            /** Intel 80860 */
+        EM_MIPS(8),           /** MIPS RS3000 */
+        // ...
+        EM_X86_64(0x003E);    /** AMD x86-64 */
+
+        private final int value;
+        ProcessorArchitecture(int value) { this.value = value; }
+    }
+
+    public enum FileVersion {
+        EV_NONE((short)0),
+        EV_CURRENT((short)1);
+
+        private final short value;
+        FileVersion(short value) { this.value = value; }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Formatter formatter = new Formatter(sb);
+
+        formatter.format("ELF header\n").format("============\n\n\n");
+
+        Elf64Address offset = new Elf64Address(BigInteger.valueOf(0));
+
+        formatter.format(Const.dbgFormat, "Name", "Offset", "NumValue", "Value");
+
+        formatter.format(Const.dbgFormat, "File identification", offset, "7f 45 4c 46", "ELF");
+        offset.incrementBy(ElfDataType.Size._4_BYTES.numOfBytes);
+        formatter.format(Const.dbgFormat, "File class", offset, elfIdentifier[4], "");
+        offset.incrementBy(elfIdentifier[4].getSize().numOfBytes);
+        formatter.format(Const.dbgFormat, "Data encoding", offset, elfIdentifier[5], "");
+        offset.incrementBy(elfIdentifier[5].getSize().numOfBytes);
+        formatter.format(Const.dbgFormat, "File version", offset, elfIdentifier[6], "");
+        offset.incrementBy(elfIdentifier[6].getSize().numOfBytes);
+        formatter.format(Const.dbgFormat, "Application Binary Interface", offset, elfIdentifier[7], "");
+        offset.incrementBy(elfIdentifier[7].getSize().numOfBytes);
+        formatter.format(Const.dbgFormat, "ABI version", offset, elfIdentifier[8], "");
+        offset.incrementBy(ElfDataType.Size._1_BYTE.numOfBytes * 8);
+
+        formatter.format(Const.dbgFormat, "File type", offset, objectFileType, "");
+        offset.incrementBy(objectFileType.getSize().numOfBytes);
+
+
+//        formatter.format(s, "Section Type:", sectionType.getHexRepresentation());
+//        formatter.format(s, "Section Attributes:", sectionAttributes.getHexRepresentation());
+//        formatter.format(s, "Virtual Memory Address:", virtualMemoryAddress.getHexRepresentation());
+//        formatter.format(s, "Offset In File:", offsetInFile.getHexRepresentation());
+//        formatter.format(s, "Section Size:", sectionSize.getHexRepresentation());
+//        formatter.format(s, "Link To Other Section:", linkToOtherSection.getHexRepresentation());
+//        formatter.format(s, "Section Info:", sectionInfo.getHexRepresentation());
+//        formatter.format(s, "Address Alignment:", addressAlignment.getHexRepresentation());
+//        formatter.format(s, "Entries Size:", entriesSize.getHexRepresentation());
+
+        sb.append('\n');
+
+        return sb.toString();
+    }
+}
