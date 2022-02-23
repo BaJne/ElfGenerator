@@ -11,6 +11,6 @@ public class Elf64Address extends ElfDataType<BigInteger> {
     @Override public ElfDataType.Size getSize() { return Size._8_BYTES; }
     @Override public boolean isUnsigned() { return true; }
     public void incrementBy(int size){
-        data = data.add(BigInteger.valueOf(size));
+        setValue(data.add(BigInteger.valueOf(size)));
     }
 }
