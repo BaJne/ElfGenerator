@@ -66,14 +66,25 @@ public class ElfHeader {
             elfIdentifier[i] = new Elf64Byte((short)0);
         }
         // Size of elfIdentifier
-        elfIdentifier[15] = new Elf64Byte((short)9);
+        elfIdentifier[15] = new Elf64Byte((short)16);
 
         objectFileType = new Elf64Half(FileType.ET_EXEC.value);
         machineType = new Elf64Half(ProcessorArchitecture.EM_X86_64.value);
         objectFileVersion = new Elf64Word(FileVersion.EV_CURRENT.value);
 
+        entryPointAddress = new Elf64Address(BigInteger.ZERO);  // TODO still to set
+        programHeaderOffset = new Elf64Offset(BigInteger.ZERO);
+        sectionHeaderOffset = new Elf64Offset(BigInteger.ZERO);
+
         processorSpecificFlag = new Elf64Word(0);
         elfHeaderSize = new Elf64Half((short)0x0040);
+
+        programHeaderEntrySize = new Elf64Half(0);        // TODO still to set
+        numOfProgramHeaderEntries = new Elf64Half(0);
+        sectionHeaderEntrySize = new Elf64Half(0);
+        numOfSectionHeaderEntries = new Elf64Half(0);
+
+        sectionNameStringTableIndex = new Elf64Half(0);
     }
 
     public void setMachineType(ProcessorArchitecture arc) { machineType = new Elf64Half(arc.value); }
@@ -157,30 +168,63 @@ public class ElfHeader {
 
         formatter.format(Const.dbgFormat, "File identification", offset, "7f 45 4c 46", "ELF");
         offset.incrementBy(ElfDataType.Size._4_BYTES.numOfBytes);
+
         formatter.format(Const.dbgFormat, "File class", offset, elfIdentifier[4], "");
         offset.incrementBy(elfIdentifier[4].getSize().numOfBytes);
+
         formatter.format(Const.dbgFormat, "Data encoding", offset, elfIdentifier[5], "");
         offset.incrementBy(elfIdentifier[5].getSize().numOfBytes);
+
         formatter.format(Const.dbgFormat, "File version", offset, elfIdentifier[6], "");
         offset.incrementBy(elfIdentifier[6].getSize().numOfBytes);
+
         formatter.format(Const.dbgFormat, "Application Binary Interface", offset, elfIdentifier[7], "");
         offset.incrementBy(elfIdentifier[7].getSize().numOfBytes);
+
         formatter.format(Const.dbgFormat, "ABI version", offset, elfIdentifier[8], "");
-        offset.incrementBy(ElfDataType.Size._1_BYTE.numOfBytes * 8);
+        offset.incrementBy(ElfDataType.Size._1_BYTE.numOfBytes * 7);
+
+        formatter.format(Const.dbgFormat, "File identification size", offset, elfIdentifier[15], "");
+        offset.incrementBy(ElfDataType.Size._1_BYTE.numOfBytes);
 
         formatter.format(Const.dbgFormat, "File type", offset, objectFileType, "");
         offset.incrementBy(objectFileType.getSize().numOfBytes);
 
+        formatter.format(Const.dbgFormat, "Machine type", offset, machineType, "");
+        offset.incrementBy(machineType.getSize().numOfBytes);
 
-//        formatter.format(s, "Section Type:", sectionType.getHexRepresentation());
-//        formatter.format(s, "Section Attributes:", sectionAttributes.getHexRepresentation());
-//        formatter.format(s, "Virtual Memory Address:", virtualMemoryAddress.getHexRepresentation());
-//        formatter.format(s, "Offset In File:", offsetInFile.getHexRepresentation());
-//        formatter.format(s, "Section Size:", sectionSize.getHexRepresentation());
-//        formatter.format(s, "Link To Other Section:", linkToOtherSection.getHexRepresentation());
-//        formatter.format(s, "Section Info:", sectionInfo.getHexRepresentation());
-//        formatter.format(s, "Address Alignment:", addressAlignment.getHexRepresentation());
-//        formatter.format(s, "Entries Size:", entriesSize.getHexRepresentation());
+        formatter.format(Const.dbgFormat, "Object File version", offset, objectFileVersion, "");
+        offset.incrementBy(objectFileVersion.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Entry point address", offset, entryPointAddress, "");
+        offset.incrementBy(entryPointAddress.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Program header offset", offset, programHeaderOffset, "");
+        offset.incrementBy(programHeaderOffset.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Section header offset", offset, sectionHeaderOffset, "");
+        offset.incrementBy(sectionHeaderOffset.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Process-specific flags", offset, processorSpecificFlag, "");
+        offset.incrementBy(processorSpecificFlag.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Elf header size", offset, elfHeaderSize, "");
+        offset.incrementBy(elfHeaderSize.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Program header entry size", offset, programHeaderEntrySize, "");
+        offset.incrementBy(programHeaderEntrySize.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Num of program header entries", offset, numOfProgramHeaderEntries, "");
+        offset.incrementBy(numOfProgramHeaderEntries.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Section header entry size", offset, sectionHeaderEntrySize, "");
+        offset.incrementBy(sectionHeaderEntrySize.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Num of section header entries", offset, numOfSectionHeaderEntries, "");
+        offset.incrementBy(numOfSectionHeaderEntries.getSize().numOfBytes);
+
+        formatter.format(Const.dbgFormat, "Section name table index", offset, sectionNameStringTableIndex, "");
+        offset.incrementBy(sectionNameStringTableIndex.getSize().numOfBytes);
 
         sb.append('\n');
 
