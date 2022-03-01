@@ -57,6 +57,8 @@ public class SectionHeaderEntry {
     private Elf64XWord addressAlignment;        // Address alignment boundary
     private Elf64XWord entriesSize;             // Size of entries if section has table
 
+    private Elf64Address absoluteAddress;
+
     public SectionHeaderEntry(){
         sectionName = new Elf64Word(0);
         sectionType = new Elf64Word(0);
@@ -68,6 +70,8 @@ public class SectionHeaderEntry {
         sectionInfo = new Elf64Word(0);
         addressAlignment = new Elf64XWord(BigInteger.valueOf(0));
         entriesSize = new Elf64XWord(BigInteger.valueOf(0));
+
+        absoluteAddress = new Elf64Address(BigInteger.ZERO);
     }
 
     public SectionHeaderEntry(
@@ -138,6 +142,10 @@ public class SectionHeaderEntry {
         return sectionName;
     }
 
+    public void setAbsoluteAddress(Elf64Address address) {
+        this.absoluteAddress = address;
+    }
+
     public void getHexContent() {
         // TODO get hexa content
     }
@@ -147,18 +155,28 @@ public class SectionHeaderEntry {
         StringBuilder sb = new StringBuilder();
         Formatter formatter = new Formatter(sb);
 
-        Elf64Address offset = new Elf64Address(BigInteger.valueOf(0));
+        Elf64Address offset = new Elf64Address(absoluteAddress.value());
 
         formatter.format(Const.dbgFormat, "Section Name:", offset, sectionName, "");
+        offset.incrementBy(sectionName.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Section Type:", offset, sectionType, "");
+        offset.incrementBy(sectionType.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Section Attributes:", offset, sectionAttributes, "");
+        offset.incrementBy(sectionAttributes.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Virtual Memory Address:", offset, virtualMemoryAddress, "");
+        offset.incrementBy(virtualMemoryAddress.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Offset In File:", offset, offsetInFile, "");
+        offset.incrementBy(offsetInFile.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Section Size:", offset, sectionSize, "");
+        offset.incrementBy(sectionSize.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Link To Other Section:", offset, linkToOtherSection, "");
+        offset.incrementBy(linkToOtherSection.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Section Info:", offset, sectionInfo, "");
+        offset.incrementBy(sectionInfo.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Address Alignment:", offset, addressAlignment, "");
+        offset.incrementBy(addressAlignment.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Entries Size:", offset, entriesSize, "");
+        offset.incrementBy(entriesSize.getSize().numOfBytes);
 
         return sb.toString();
     }
