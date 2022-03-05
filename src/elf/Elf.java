@@ -11,7 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 // TODO Static constants could be defined in order to perform different code generation process
-public class ElfFile {
+public class Elf {
     private final ElfHeader header;
     private final ProgramHeaderTable programHeaderTable;
     private final ArrayList<Segment> segments;                  // For executable elf file we use segments
@@ -22,8 +22,8 @@ public class ElfFile {
     private Elf64Address programCounter;
 
 
-    public ElfFile(){
-        header = new ElfHeader();
+    public Elf(ElfHeader header){
+        this.header = header;
         programHeaderTable = new ProgramHeaderTable();
         segments = new ArrayList<>();
         sections = new ArrayList<Section>();
@@ -46,7 +46,11 @@ public class ElfFile {
     }
 
     public static void main(String[] args) {
-        ElfFile file = new ElfFile();
+        ElfHeader header = new ElfHeader();
+        Elf file = new Elf(header);
+
+        // Looking at most simple assembly code create elf file.
+
 
         System.out.println(file);
     }
