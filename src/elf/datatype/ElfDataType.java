@@ -1,7 +1,5 @@
 package elf.datatype;
 
-import elf.util.Const;
-
 import java.math.BigInteger;
 
 public abstract class ElfDataType<T extends Number> {
