@@ -10,6 +10,8 @@ import java.util.Set;
  * An object file’s section header table lets one locate all the file’s sections.
  */
 public class SectionHeaderTable {
+    // Hash map is used to speed up the search for some section
+    // If section search is wanted to be performed by its name, string section should be searched first
     private final LinkedHashMap<Elf64Word, SectionHeaderEntry> table;
 
     public SectionHeaderTable(){
