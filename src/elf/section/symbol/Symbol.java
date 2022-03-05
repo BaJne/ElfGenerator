@@ -1,4 +1,4 @@
-package elf.symbol;
+package elf.section.symbol;
 
 import elf.datatype.*;
 
