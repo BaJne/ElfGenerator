@@ -1,7 +1,7 @@
 package elf.header;
 
 import elf.datatype.*;
-import elf.util.Const;
+import elf.util.Util.Const;
 
 import java.math.BigInteger;
 import java.util.Formatter;
@@ -62,11 +62,11 @@ public class ElfHeader {
         elfIdentifier[8] = new Elf64Byte((short)0);
 
         // Start of padding bytes
-        for(int i = 9; i < 15; i++){
+        for(int i = 9; i < 16; i++){
             elfIdentifier[i] = new Elf64Byte((short)0);
         }
         // Size of elfIdentifier
-        elfIdentifier[15] = new Elf64Byte((short)16);
+        // elfIdentifier[15] = new Elf64Byte((short)16);
 
         objectFileType = new Elf64Half(FileType.ET_EXEC.value);
         machineType = new Elf64Half(ProcessorArchitecture.EM_X86_64.value);
