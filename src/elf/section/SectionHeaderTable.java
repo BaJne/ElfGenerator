@@ -12,7 +12,7 @@ import java.util.Set;
 public class SectionHeaderTable {
     // Hash map is used to speed up the search for some section
     // If section search is wanted to be performed by its name, string section should be searched first
-    private final LinkedHashMap<Elf64Word, SectionHeaderEntry> table;
+    private final LinkedHashMap<String, SectionHeaderEntry> table;
 
     public SectionHeaderTable(){
         table = new LinkedHashMap<>();
@@ -22,16 +22,10 @@ public class SectionHeaderTable {
     private void initReservedSectionEntry() {
         SectionHeaderEntry zeroEntry = new SectionHeaderEntry();
         zeroEntry.setSectionType(SectionHeaderEntry.SectionType.SHT_NULL);
-        addSectionEntry(zeroEntry.getSectionName(), zeroEntry);
-
-        SectionHeaderEntry relocationSection = new SectionHeaderEntry();
-        relocationSection.setSectionName(0x0000007AL);
-        relocationSection.setSectionType(SectionHeaderEntry.SectionType.SHT_RELA);
-        relocationSection.setSectionAttributes(SectionHeaderEntry.SectionFlag.SHF_ALLOC);
-        addSectionEntry(relocationSection.getSectionName(), relocationSection);
+        addSectionEntry("SHT_NULL", zeroEntry);
     }
 
-    public void addSectionEntry(Elf64Word sectionName, SectionHeaderEntry entry){
+    public void addSectionEntry(String sectionName, SectionHeaderEntry entry){
         table.put(sectionName, entry);
     }
 
@@ -88,9 +82,9 @@ public class SectionHeaderTable {
         StringBuilder sb = new StringBuilder();
         sb.append("Section table\n");
         sb.append("====================\n\n");
-        Set<Map.Entry<Elf64Word, SectionHeaderEntry>> set = table.entrySet();
+        Set<Map.Entry<String, SectionHeaderEntry>> set = table.entrySet();
         int order = 0;
-        for(Map.Entry<Elf64Word, SectionHeaderEntry> e : set){
+        for(Map.Entry<String, SectionHeaderEntry> e : set){
             sb.append("Section header table: ").append(order++).append('\n');
             sb.append("--------------------\n");
             sb.append(e.getValue().toString()).append('\n');

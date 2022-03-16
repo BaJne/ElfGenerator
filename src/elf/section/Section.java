@@ -23,4 +23,7 @@ public abstract class Section {
         this.name = name;
     }
 
+    public String getSectionName() {
+        return name;
+    }
 }

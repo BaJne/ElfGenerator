@@ -79,6 +79,8 @@ public class SectionHeaderEntry {
      */
     private Elf64XWord entriesSize;
 
+    private String dbgSectionName;
+
     // TODO: see how to work with absoluteAddress(Comes last)
     private Elf64Address absoluteAddress;
 
@@ -121,8 +123,16 @@ public class SectionHeaderEntry {
         this.entriesSize = entriesSize;
     }
 
+    public void setSectionName(Elf64Word word) {
+        this.sectionName = word;
+    }
+
     public void setSectionName(Long sectionName) {
         this.sectionName.setValue(sectionName);
+    }
+
+    public Elf64Word getSectionName() {
+        return sectionName;
     }
 
     public void setSectionType(SectionType sectionType) {
@@ -161,12 +171,12 @@ public class SectionHeaderEntry {
         this.entriesSize.setValue(new BigInteger(entriesSize));
     }
 
-    public Elf64Word getSectionName() {
-        return sectionName;
-    }
-
     public void setAbsoluteAddress(Elf64Address address) {
         this.absoluteAddress = address;
+    }
+
+    public void linkSectionName(String name){
+        dbgSectionName = name;
     }
 
     public void getHexContent() {
@@ -180,7 +190,7 @@ public class SectionHeaderEntry {
 
         Elf64Address offset = new Elf64Address(absoluteAddress.value());
 
-        formatter.format(Const.dbgFormat, "Section Name:", offset, sectionName, "");
+        formatter.format(Const.dbgFormat, "Section Name:", offset, sectionName, dbgSectionName);
         offset.incrementBy(sectionName.getSize().numOfBytes);
         formatter.format(Const.dbgFormat, "Section Type:", offset, sectionType, "");
         offset.incrementBy(sectionType.getSize().numOfBytes);
@@ -227,12 +237,12 @@ public class SectionHeaderEntry {
         private SectionType(long size){ value = size; }
     }
 
-    public enum SectionFlag{
-        SHF_WRITE("1"),              /** Section contains writable data                   */
-        SHF_ALLOC("2"),              /** Section is allocated in memory image of program  */
-        SHF_EXECINSTR("4"),          /** Section contains executable instructions         */
-        SHF_MASKOS("0F000000"),      /** Environment-specific use                         */
-        SHF_MASKPROC("F0000000");    /** Processor-specific use                           */
+    public enum SectionFlag {
+        SHF_WRITE("1"),              /** Section contains writable data                  - W */
+        SHF_ALLOC("2"),              /** Section is allocated in memory image of program - A */
+        SHF_EXECINSTR("4"),          /** Section contains executable instructions        - X */
+        SHF_MASKOS("0F000000"),      /** Environment-specific use                            */
+        SHF_MASKPROC("F0000000");    /** Processor-specific use                              */
 
         private final String value;
         private SectionFlag(String size){ value = size; }

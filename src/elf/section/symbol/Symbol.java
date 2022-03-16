@@ -3,6 +3,8 @@ package elf.section.symbol;
 import elf.datatype.*;
 
 import java.math.BigInteger;
+import java.util.Formatter;
+import elf.util.Util.Const;
 
 public class Symbol {
     /**
@@ -10,7 +12,7 @@ public class Symbol {
      * start of the symbol string table. If this field contains zero, the symbol has
      * no name.
      */
-    private Elf64Word name;
+    private Elf64Word nameOffset;
     /**
      * Contains the symbol type and its binding attributes (that is, its
      * scope). The binding attributes are contained in the high-order four bits of
@@ -45,7 +47,7 @@ public class Symbol {
     private Elf64XWord objectSize;
 
     public Symbol(){
-        name = new Elf64Word(0);
+        nameOffset = new Elf64Word(0);
         other = new Elf64Byte((short)0);
         info = new Elf64Byte((short)0);
         sectionTableIndex = new Elf64Half(0);
@@ -53,9 +55,9 @@ public class Symbol {
         objectSize = new Elf64XWord(BigInteger.ZERO);
     }
 
-    public Elf64Word getName() { return name; }
+    public Elf64Word getNameOffset() { return nameOffset; }
 
-    public void setName(Elf64Word name) { this.name = name; }
+    public void setNameOffset(Elf64Word offset) { this.nameOffset = offset; }
 
     public Elf64Byte getInfo() { return info; }
 
@@ -93,6 +95,18 @@ public class Symbol {
 
     public void setObjectSize(Elf64XWord objectSize) {
         this.objectSize = objectSize;
+    }
+
+    public void setInfo(Elf64Byte info) {
+        this.info = info;
+    }
+
+    public Elf64Byte getOther() {
+        return other;
+    }
+
+    public void setOther(Elf64Byte other) {
+        this.other = other;
     }
 
     public enum SymbolBindings{
@@ -135,4 +149,20 @@ public class Symbol {
         private SymbolType(short size){ value = size; }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Formatter formatter = new Formatter(sb);
+
+        Elf64Address offset = new Elf64Address(BigInteger.ZERO);
+
+        formatter.format(Const.dbgFormat, "String table offset:", offset, nameOffset, "");
+        formatter.format(Const.dbgFormat, "Type and Binding attributes:", offset, info, "");
+        formatter.format(Const.dbgFormat, "Reserved:", offset, other, "");
+        formatter.format(Const.dbgFormat, "Section table index:", offset, sectionTableIndex, "");
+        formatter.format(Const.dbgFormat, "Symbol value:", offset, symbolValue, "");
+        formatter.format(Const.dbgFormat, "Size of object:", offset, objectSize, "");
+
+        return sb.toString();
+    }
 }

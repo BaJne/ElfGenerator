@@ -4,7 +4,11 @@ import elf.datatype.*;
 import elf.header.ElfHeader;
 import elf.programinfo.ProgramHeaderTable;
 import elf.section.Section;
+import elf.section.SectionHeaderEntry;
 import elf.section.SectionHeaderTable;
+import elf.section.string.StringTable;
+import elf.section.symbol.Symbol;
+import elf.section.symbol.SymbolTable;
 import elf.segment.Segment;
 
 import java.math.BigInteger;
@@ -17,6 +21,8 @@ public class Elf {
     private final ArrayList<Segment> segments;                  // For executable elf file we use segments
     private final ArrayList<Section> sections;
     // ...
+    private final StringTable stringTable;
+    private final SymbolTable symbolTable;
     private final SectionHeaderTable sectionHeaderTable;
 
     private Elf64Address programCounter;
@@ -26,8 +32,29 @@ public class Elf {
         this.header = header;
         programHeaderTable = new ProgramHeaderTable();
         segments = new ArrayList<>();
+
         sections = new ArrayList<Section>();
         sectionHeaderTable = new SectionHeaderTable();
+
+        // Make predefined sections
+        stringTable = new StringTable();
+        symbolTable = new SymbolTable();
+
+        // Add symbol table section entry
+        Elf64Word offset = stringTable.addString(symbolTable.getSectionName());
+        SectionHeaderEntry entry = new SectionHeaderEntry();
+        entry.setSectionName(offset);
+        entry.setSectionType(SectionHeaderEntry.SectionType.SHT_SYMTAB);
+        entry.linkSectionName(symbolTable.getSectionName());
+        sectionHeaderTable.addSectionEntry(symbolTable.getSectionName(), entry); // TODO: This could be postponed for later
+
+        // Add string table section entry
+        offset = stringTable.addString(stringTable.getSectionName());
+        entry = new SectionHeaderEntry();
+        entry.setSectionName(offset);
+        entry.setSectionType(SectionHeaderEntry.SectionType.SHT_STRTAB);
+        entry.linkSectionName(stringTable.getSectionName());
+        sectionHeaderTable.addSectionEntry(stringTable.getSectionName(), entry);
 
         programCounter = new Elf64Address(   // Program counter should start from the end of header
                 BigInteger.valueOf(header.elfHeaderSize.value()));
@@ -42,12 +69,17 @@ public class Elf {
         StringBuilder sb = new StringBuilder();
         sb.append(header).append('\n');
         sb.append(sectionHeaderTable).append('\n');
+        sb.append(symbolTable).append('\n');
+        sb.append(stringTable).append('\n');
         return sb.toString();
     }
 
     public static void main(String[] args) {
         ElfHeader header = new ElfHeader();
         Elf file = new Elf(header);
+
+        // Define and implement API for adding new section
+        // Test case add SYMTAB section
 
         // Looking at most simple assembly code create elf file.
 
