@@ -44,12 +44,14 @@ public class Elf {
         stringTable = new StringTable();
         symbolTable = new SymbolTable();
 
+        // TODO Make helper function to create section and also add it to section table, update symbols, strings table, etc.
         // Add symbol table section entry
         Elf64Word offset = stringTable.addString(symbolTable.getSectionName());
         SectionHeaderEntry entry = new SectionHeaderEntry();
         entry.setSectionName(offset);
         entry.setSectionType(SectionHeaderEntry.SectionType.SHT_SYMTAB);
         entry.linkSectionName(symbolTable.getSectionName());
+        entry.setEntriesSize(String.valueOf(Symbol.SIZE_IN_BYTES));
         sectionHeaderTable.addSectionEntry(symbolTable.getSectionName(), entry); // TODO: This could be postponed for later
 
         // Add string table section entry
@@ -60,11 +62,16 @@ public class Elf {
         entry.linkSectionName(stringTable.getSectionName());
         sectionHeaderTable.addSectionEntry(stringTable.getSectionName(), entry);
 
-        header.set
-        header.setStringTableIndex(new Elf64Half(sectionHeaderTable.getEntryCount()-1));
+        // Update information about section table.
+        header.sectionStringTableIndex = new Elf64Half(sectionHeaderTable.getEntryCount()-1);
+
 
         programCounter = new Elf64Address(   // Program counter should start from the end of header
                 BigInteger.valueOf(header.elfHeaderSize.value()));
+    }
+
+    public void finalizeElfStructure(){     // TODO if we need to change this name...
+        header.numOfSectionHeaderEntries = new Elf64Half(sectionHeaderTable.getEntryCount());
     }
 
     public void writeToFile(String fileName){
@@ -85,17 +92,19 @@ public class Elf {
         return sb.toString();
     }
 
+    // TODO list:
+    //  1.  Make different elf files depending if file is shared, exec., etc.
     public static void main(String[] args) {
+        // Example how we initialize and create Elf file
         ElfHeader header = new ElfHeader();
         Elf elf = new Elf(header);
 
+        // Making changes to ELF: adding sections, segments, etc. ...
+        // ...
+
+        elf.finalizeElfStructure();
+
         elf.writeToFile("./test/output/elf");
-
-        // Define and implement API for adding new section
-        // Test case add SYMTAB section
-
-        // Looking at most simple assembly code create elf file.
-
 
         System.out.println(elf);
     }

@@ -1,12 +1,11 @@
 package elf.header;
 
 import elf.datatype.*;
+import elf.section.SectionHeaderEntry;
 import elf.util.Util.Const;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Formatter;
 
 public class ElfHeader {
@@ -43,7 +42,7 @@ public class ElfHeader {
      * name string table. If the file has no section name string table, this member holds
      * the value SHN_UNDEF.
      */
-    public Elf64Half sectionNameStringTableIndex;
+    public Elf64Half sectionStringTableIndex;
 
     public ElfHeader() {
         // TODO: After making of most simple elf file is done, start adding methods that will
@@ -71,7 +70,7 @@ public class ElfHeader {
         // Size of elfIdentifier
         // elfIdentifier[15] = new Elf64Byte((short)16);
 
-        objectFileType = new Elf64Half(FileType.ET_EXEC.value);
+        objectFileType = new Elf64Half(FileType.ET_DYN.value);
         machineType = new Elf64Half(ProcessorArchitecture.EM_X86_64.value);
         objectFileVersion = new Elf64Word(FileVersion.EV_CURRENT.value);
 
@@ -84,22 +83,11 @@ public class ElfHeader {
 
         programHeaderEntrySize = new Elf64Half(0);        // TODO still to set
         numOfProgramHeaderEntries = new Elf64Half(0);
-        sectionHeaderEntrySize = new Elf64Half(0);
+
+        sectionHeaderEntrySize = new Elf64Half(SectionHeaderEntry.SIZE_IN_BYTES);
         numOfSectionHeaderEntries = new Elf64Half(0);
 
-        sectionNameStringTableIndex = new Elf64Half(0);
-    }
-
-    public void setMachineType(ProcessorArchitecture arc) { machineType = new Elf64Half(arc.value); }
-    public void setObjectFileType(FileType type) { objectFileType = new Elf64Half(type.value); }
-    public void setObjectFileVersion(FileVersion version) { objectFileVersion = new Elf64Word(version.value); }
-    public void setStringTableIndex(Elf64Half stringTableIndex) { this.sectionNameStringTableIndex = stringTableIndex; }
-    public void setSectionHeaderEntrySize(Elf64Half sectionHeaderEntrySize) {
-        this.sectionHeaderEntrySize = sectionHeaderEntrySize;
-    }
-
-    public void setNumOfSectionHeaderEntries(Elf64Half numOfSectionHeaderEntries) {
-        this.numOfSectionHeaderEntries = numOfSectionHeaderEntries;
+        sectionStringTableIndex = new Elf64Half(0);
     }
 
     public enum FileClass{
@@ -186,7 +174,7 @@ public class ElfHeader {
         buffer.put(numOfProgramHeaderEntries.toBytes());
         buffer.put(sectionHeaderEntrySize.toBytes());
         buffer.put(numOfSectionHeaderEntries.toBytes());
-        buffer.put(sectionNameStringTableIndex.toBytes());
+        buffer.put(sectionStringTableIndex.toBytes());
 
         return buffer.array();
     }
@@ -259,8 +247,8 @@ public class ElfHeader {
         formatter.format(Const.dbgFormat, "Num of section header entries", offset, numOfSectionHeaderEntries, "");
         offset.incrementBy(numOfSectionHeaderEntries.getSize().numOfBytes);
 
-        formatter.format(Const.dbgFormat, "Section name table index", offset, sectionNameStringTableIndex, "");
-        offset.incrementBy(sectionNameStringTableIndex.getSize().numOfBytes);
+        formatter.format(Const.dbgFormat, "String table index", offset, sectionStringTableIndex, "");
+        offset.incrementBy(sectionStringTableIndex.getSize().numOfBytes);
 
         sb.append('\n');
 

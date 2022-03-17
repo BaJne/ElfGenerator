@@ -7,6 +7,7 @@ import java.util.Formatter;
 import elf.util.Util.Const;
 
 public class Symbol {
+    public static final int SIZE_IN_BYTES = 24;
     /**
      * Contains the offset, in bytes, to the symbol name, relative to the
      * start of the symbol string table. If this field contains zero, the symbol has
@@ -45,6 +46,15 @@ public class Symbol {
      * have an associated size, or the size is unknown, this field contains zero.
      */
     private Elf64XWord objectSize;
+
+    public int getByteNum(){
+        return nameOffset.getSize().numOfBytes +
+                info.getSize().numOfBytes +
+                other.getSize().numOfBytes +
+                sectionTableIndex.getSize().numOfBytes +
+                symbolValue.getSize().numOfBytes +
+                objectSize.getSize().numOfBytes;
+    }
 
     public Symbol(){
         nameOffset = new Elf64Word(0);

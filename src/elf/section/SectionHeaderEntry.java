@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.util.Formatter;
 
 public class SectionHeaderEntry {
+    public static final byte SIZE_IN_BYTES = 64;
     /**
      * This member specifies the name of the section. Its value is an index into the section
      * header string table section [see ‘‘String Table’’ below], giving the location of a null-terminated
@@ -80,9 +81,7 @@ public class SectionHeaderEntry {
     private Elf64XWord entriesSize;
 
     private String dbgSectionName;
-
-    // TODO: see how to work with absoluteAddress(Comes last)
-    private Elf64Address absoluteAddress;
+    private Elf64Address absoluteAddress;  // TODO: see how to work with absoluteAddress(Comes last)
 
     public SectionHeaderEntry(){
         sectionName = new Elf64Word(0);
@@ -179,8 +178,25 @@ public class SectionHeaderEntry {
         dbgSectionName = name;
     }
 
-    public void getHexContent() {
+    public byte[] toBytes() {
         // TODO get hexa content
+        return new byte[]{0};
+    }
+
+    public int getNumOfBytes(){
+        int result = 0;
+        result += sectionName.getSize().numOfBytes;
+        result += sectionType.getSize().numOfBytes;
+        result += sectionAttributes.getSize().numOfBytes;
+        result += virtualMemoryAddress.getSize().numOfBytes;
+        result += offsetInFile.getSize().numOfBytes;
+        result += sectionSize.getSize().numOfBytes;
+        result += linkToOtherSection.getSize().numOfBytes;
+        result += sectionInfo.getSize().numOfBytes;
+        result += addressAlignment.getSize().numOfBytes;
+        result += entriesSize.getSize().numOfBytes;
+
+        return result;
     }
 
     @Override
