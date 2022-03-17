@@ -60,6 +60,9 @@ public class Elf {
         entry.linkSectionName(stringTable.getSectionName());
         sectionHeaderTable.addSectionEntry(stringTable.getSectionName(), entry);
 
+        header.set
+        header.setStringTableIndex(new Elf64Half(sectionHeaderTable.getEntryCount()-1));
+
         programCounter = new Elf64Address(   // Program counter should start from the end of header
                 BigInteger.valueOf(header.elfHeaderSize.value()));
     }

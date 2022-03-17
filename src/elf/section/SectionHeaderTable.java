@@ -29,10 +29,13 @@ public class SectionHeaderTable {
         table.put(sectionName, entry);
     }
 
-    public String getHexContent(){
-        // TODO: implement this
+    public int getEntryCount(){
+        return table.size();
+    }
 
-        return "";
+    public byte[] toBytes(){
+        // TODO: implement this
+        return new byte[1];
     }
 
     private enum ReservedEntries {

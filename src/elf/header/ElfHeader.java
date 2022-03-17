@@ -93,6 +93,14 @@ public class ElfHeader {
     public void setMachineType(ProcessorArchitecture arc) { machineType = new Elf64Half(arc.value); }
     public void setObjectFileType(FileType type) { objectFileType = new Elf64Half(type.value); }
     public void setObjectFileVersion(FileVersion version) { objectFileVersion = new Elf64Word(version.value); }
+    public void setStringTableIndex(Elf64Half stringTableIndex) { this.sectionNameStringTableIndex = stringTableIndex; }
+    public void setSectionHeaderEntrySize(Elf64Half sectionHeaderEntrySize) {
+        this.sectionHeaderEntrySize = sectionHeaderEntrySize;
+    }
+
+    public void setNumOfSectionHeaderEntries(Elf64Half numOfSectionHeaderEntries) {
+        this.numOfSectionHeaderEntries = numOfSectionHeaderEntries;
+    }
 
     public enum FileClass{
         ELF_CLASS_NONE((short)0),
