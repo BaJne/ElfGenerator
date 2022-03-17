@@ -4,6 +4,9 @@ import elf.datatype.*;
 import elf.util.Util.Const;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Formatter;
 
 public class ElfHeader {
@@ -153,6 +156,31 @@ public class ElfHeader {
 
         private final short value;
         FileVersion(short value) { this.value = value; }
+    }
+
+    public byte[] toBytes(){
+        ByteBuffer buffer = ByteBuffer.allocate(64);
+        for(int i = 0; i < 16; ++i){
+            buffer.put(elfIdentifier[i].toBytes());
+        }
+
+        buffer.put(objectFileType.toBytes());
+        buffer.put(machineType.toBytes());
+        buffer.put(objectFileVersion.toBytes());
+        buffer.put(entryPointAddress.toBytes());
+        buffer.put(programHeaderOffset.toBytes());
+        buffer.put(sectionHeaderOffset.toBytes());
+
+        buffer.put(processorSpecificFlag.toBytes());
+        buffer.put(elfHeaderSize.toBytes());
+
+        buffer.put(programHeaderEntrySize.toBytes());
+        buffer.put(numOfProgramHeaderEntries.toBytes());
+        buffer.put(sectionHeaderEntrySize.toBytes());
+        buffer.put(numOfSectionHeaderEntries.toBytes());
+        buffer.put(sectionNameStringTableIndex.toBytes());
+
+        return buffer.array();
     }
 
     @Override

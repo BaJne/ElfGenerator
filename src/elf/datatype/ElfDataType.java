@@ -58,7 +58,34 @@ public abstract class ElfDataType<T extends Number> {
         return data.hashCode();
     }
 
-    public String getHex(){
+    public byte[] toBytes(){
+        byte[] result;
+
+        if(data instanceof BigInteger) {
+            byte[] temp = ((BigInteger)data).toByteArray();
+            int numOfZerosToInsert = getSize().numOfBytes - temp.length;
+            result = new byte[getSize().numOfBytes];
+            for(int i = 0; i < numOfZerosToInsert; ++i) {
+                result[i] = 0;
+            }
+            for(int i = 0; i < temp.length; ++i) {
+                result[i + numOfZerosToInsert] = temp[i];
+            }
+        }
+        else {
+            result = new byte[getSize().numOfBytes];
+            long tempData = data.longValue();
+
+            for(int i = 0; i < result.length; i++){
+                result[i] = (byte)(0xFF & tempData);
+                tempData >>= 8;
+            }
+        }
+
+        return result;
+    }
+
+    private String getHex(){
         StringBuilder sb = new StringBuilder();
 
         if(data instanceof BigInteger) { // If BigDecimal is used for storing data.

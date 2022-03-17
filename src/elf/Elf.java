@@ -11,6 +11,10 @@ import elf.section.symbol.Symbol;
 import elf.section.symbol.SymbolTable;
 import elf.segment.Segment;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -60,8 +64,12 @@ public class Elf {
                 BigInteger.valueOf(header.elfHeaderSize.value()));
     }
 
-    public void writeToFile(){
-
+    public void writeToFile(String fileName){
+        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fileName))) {
+            outputStream.write(header.toBytes());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -76,7 +84,9 @@ public class Elf {
 
     public static void main(String[] args) {
         ElfHeader header = new ElfHeader();
-        Elf file = new Elf(header);
+        Elf elf = new Elf(header);
+
+        elf.writeToFile("./test/output/elf");
 
         // Define and implement API for adding new section
         // Test case add SYMTAB section
@@ -84,6 +94,6 @@ public class Elf {
         // Looking at most simple assembly code create elf file.
 
 
-        System.out.println(file);
+        System.out.println(elf);
     }
 }
